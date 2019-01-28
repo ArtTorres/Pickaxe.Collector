@@ -1,0 +1,19 @@
+[
+	{
+		"id": "",
+		"window_time": 15,
+		"friends_request_limit": 15,
+		"followers_request_limit": 15,
+		"users_request_limit": 900,
+		"timeline_request_limit": 1500,
+		"account": {
+			"api_key": '',
+			"api_secret": '',
+			"token_key": '',
+			"token_secret": '',
+			"proxy": null
+		},
+		"max_friends_by_request": 5000,
+		"max_followers_by_request": 5000
+	}
+]
