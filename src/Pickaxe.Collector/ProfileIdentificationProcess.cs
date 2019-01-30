@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using MagnetArgs;
+using Newtonsoft.Json.Linq;
 using QApp;
 using QApp.Events;
-using QApp.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,13 +10,13 @@ using System.Text;
 
 namespace Pickaxe.Collector
 {
-    class ProfileIdentificationOptions : QOption
+    class ProfileIdentificationOptions : MagnetOption
     {
-        [Option("--input-directory", Alias = "-input", IsRequired = true)]
+        [Arg("--input-directory", Alias = "-input"), IsRequired]
         public string InputDirectories { get; set; }
-        [Option("--cache-directory", Alias = "-cache")]
+        [Arg("--cache-directory", Alias = "-cache")]
         public string CacheDirectory { get; set; }
-        [Option("--ouput-directory", Alias = "-output")]
+        [Arg("--ouput-directory", Alias = "-output")]
         public string OutputDirectory { get; set; }
 
         public bool SaveProfileOnCache
@@ -27,11 +27,11 @@ namespace Pickaxe.Collector
             }
         }
 
-        [Option("--restore-identification", Alias = "-restore", IfPresent = true)]
+        [Arg("--restore-identification", Alias = "-restore"), IfPresent]
         public bool RestoreCache { get; set; }
     }
 
-    class ProfileIdentificationProcess : QProcess
+    class ProfileIdentificationProcess : QTask
     {
         #region Events
         public event EventHandler<MessageEventArgs> DocumentRead;
@@ -84,12 +84,12 @@ namespace Pickaxe.Collector
         {
             try
             {
-                this.OnProcessStarted(new MessageEventArgs("The identification process is started.", MessageType.Info));
+                this.OnStarted(new MessageEventArgs("The identification process is started.", MessageType.Info));
 
                 if (_options.RestoreCache)
                 {
                     // Process cache directory
-                    this.OnProcessProgress(new MessageEventArgs("Restore identifiers enabled.", MessageType.Warning));
+                    this.OnProgress(new MessageEventArgs("Restore identifiers enabled.", MessageType.Warning));
                     this.LoadProfilesFromDirectoryCache(_options.CacheDirectory);
                 }
                 else
@@ -104,7 +104,7 @@ namespace Pickaxe.Collector
                 }
 
                 // Show Statistics
-                this.OnProcessProgress(new MessageEventArgs(
+                this.OnProgress(new MessageEventArgs(
                     MessageType.Resume,
                     MessagePriority.Medium,
                     "Directories: {0}, Files: {1}, Documents: {2}/{3}",
@@ -113,7 +113,7 @@ namespace Pickaxe.Collector
 
                 _profiles = _pool.Distinct();
 
-                this.OnProcessProgress(new MessageEventArgs(
+                this.OnProgress(new MessageEventArgs(
                     MessageType.Resume,
                     MessagePriority.Medium,
                     "Identified Users: {0}",
@@ -122,12 +122,12 @@ namespace Pickaxe.Collector
 
                 if (_options.SaveProfileOnCache && !_options.RestoreCache)
                     this.SaveProfilesOnCache(_profiles);
-
-                this.OnProcessCompleted(new MessageEventArgs("The identification process is completed.", MessageType.Info));
+                
+                this.OnCompleted(new MessageEventArgs("The identification process is completed.", MessageType.Info));
             }
             catch (Exception ex)
             {
-                this.OnProcessFailed(new MessageEventArgs("The identification process failed with the message: " + ex.Message, MessageType.Error));
+                this.OnFailed(new MessageEventArgs("The identification process failed with the message: " + ex.Message, MessageType.Error));
             }
         }
 
@@ -150,7 +150,7 @@ namespace Pickaxe.Collector
                 }
             }
             else
-                this.OnProcessProgress(new MessageEventArgs(MessageType.Error, MessagePriority.Medium, "Directory Not Found: {0}", directoryPath));
+                this.OnProgress(new MessageEventArgs(MessageType.Error, MessagePriority.Medium, "Directory Not Found: {0}", directoryPath));
         }
 
         private void ReadFile(string filename)
@@ -247,7 +247,7 @@ namespace Pickaxe.Collector
                 _directories++;
             }
             else
-                this.OnProcessProgress(new MessageEventArgs(MessageType.Error, MessagePriority.Medium, "Directory Not Found: {0}", directoryPath));
+                this.OnProgress(new MessageEventArgs(MessageType.Error, MessagePriority.Medium, "Directory Not Found: {0}", directoryPath));
         }
 
         private void LoadProfilesFromFileCache(string filename)

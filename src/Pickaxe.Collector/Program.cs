@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using MagnetArgs;
+using Newtonsoft.Json.Linq;
 using Pickaxe.Collector.Controller;
 using QApp;
 using QApp.Events;
@@ -7,24 +8,24 @@ using System.IO;
 
 namespace Pickaxe.Collector
 {
-    class ApplicationOptions : QOption
+    class ApplicationOptions : MagnetOption
     {
-        [Option("--identification-only", Alias = "-identify", IfPresent = true)]
+        [Arg("--identification-only", Alias = "-identify"), IfPresent]
         public bool IdentificationOnly { get; set; }
 
-        [Option("--collector-only", Alias = "-collect", IfPresent = true)]
+        [Arg("--collector-only", Alias = "-collect"), IfPresent]
         public bool CollectorOnly { get; set; }
     }
 
     class Application : QApplication
     {
-        [OptionSet(1)]
-        private ApplicationOptions AppOptions { get; set; }
+        [OptionSet]
+        private ApplicationOptions ApplicationOptions { get; set; }
 
-        [OptionSet(2)]
+        [OptionSet]
         private ProfileIdentificationOptions IdentificationOptions { get; set; }
 
-        [OptionSet(3)]
+        [OptionSet]
         private CollectorOptions CollectorOptions { get; set; }
 
         public override void ExecutionProcess()
@@ -34,7 +35,7 @@ namespace Pickaxe.Collector
             {
                 CollectorProcess.SaveRequestConfiguration(
                     new RequestMonitorOptions[]{
-                        new RequestMonitorOptions(){ 
+                        new RequestMonitorOptions(){
                             ConnectionAccount=new Model.Account()
                         }
                     },
@@ -46,17 +47,17 @@ namespace Pickaxe.Collector
 
             // Identification process
             var identification = new ProfileIdentificationProcess(IdentificationOptions);
-            this.RegisterProcess(identification);
+            this.MonitorTask(identification);
             identification.DocumentRead += process_ProcessProgress;
             identification.DocumentFailed += process_ProcessProgress;
 
 
             // Collector process
             var collector = new CollectorProcess(CollectorOptions);
-            this.RegisterProcess(collector);
+            this.MonitorTask(collector);
 
 
-            if (!AppOptions.CollectorOnly)
+            if (!ApplicationOptions.CollectorOnly)
             {
                 identification.Start();
             }
@@ -66,11 +67,11 @@ namespace Pickaxe.Collector
                 collector.RebuildCache();
             }
 
-            if (!AppOptions.IdentificationOnly)
+            if (!ApplicationOptions.IdentificationOnly)
             {
                 collector.RestoreCache();
 
-                if (!AppOptions.CollectorOnly)
+                if (!ApplicationOptions.CollectorOnly)
                     collector.AddToPool(identification.Profiles);
 
                 collector.Start();

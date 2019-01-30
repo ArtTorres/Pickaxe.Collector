@@ -14,7 +14,7 @@ using System.Threading;
 
 namespace Pickaxe.Collector
 {
-    class CollectorProcess : QProcess
+    class CollectorProcess : QTask
     {
         //private const char UNIT_SEPARATOR = '\u241F';
 
@@ -47,7 +47,7 @@ namespace Pickaxe.Collector
 
         public void RestoreCache()
         {
-            this.OnProcessStarted(new MessageEventArgs("Restoring cache...", MessageType.Info));
+            this.OnStarted(new MessageEventArgs("Restoring cache...", MessageType.Info));
 
             if (File.Exists(_bench.CacheFilename))
             {
@@ -63,7 +63,7 @@ namespace Pickaxe.Collector
 
         public void RebuildCache()
         {
-            this.OnProcessStarted(new MessageEventArgs("Rebuilding cache...", MessageType.Info));
+            this.OnStarted(new MessageEventArgs("Rebuilding cache...", MessageType.Info));
 
             if (File.Exists(_bench.CacheFilename))
                 File.Delete(_bench.CacheFilename);
@@ -126,9 +126,9 @@ namespace Pickaxe.Collector
             // Free resources
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
-
+  
             // Wait until new window is available
-            this.OnProcessProgress(new MessageEventArgs(MessageType.Warning, MessagePriority.Medium, "No resources available. New start time: {0:hh:mm:ss} on {0:dd/MM/yy}", DateTime.Now.Add(e.WaitTime)));
+            this.OnProgress(new MessageEventArgs(MessageType.Warning, MessagePriority.Medium, "No resources available. New start time: {0:hh:mm:ss} on {0:dd/MM/yy}", DateTime.Now.Add(e.WaitTime)));
             Thread.Sleep(e.WaitTime);
 
             // Give priority to the bench
@@ -149,15 +149,15 @@ namespace Pickaxe.Collector
         {
             try
             {
-                this.OnProcessStarted(new MessageEventArgs("The profile collector process is started.", MessageType.Info));
+                this.OnStarted(new MessageEventArgs("The profile collector process is started.", MessageType.Info));
 
                 this.Collect();
 
-                this.OnProcessCompleted(new MessageEventArgs("The profile collector process is completed.", MessageType.Info));
+                this.OnCompleted(new MessageEventArgs("The profile collector process is completed.", MessageType.Info));
             }
             catch (Exception ex)
             {
-                this.OnProcessFailed(new MessageEventArgs("The profile collector process failed with the message: " + ex.Message, MessageType.Error));
+                this.OnFailed(new MessageEventArgs("The profile collector process failed with the message: " + ex.Message, MessageType.Error));
             }
         }
 
@@ -328,8 +328,8 @@ namespace Pickaxe.Collector
                     if (_pool.HasUsers && user.Source == SourceType.Bench)
                         _benchPriority = false;
                 }
-
-                this.OnProcessProgress(new MessageEventArgs(MessageType.Progress, MessagePriority.Medium,
+               
+                this.OnProgress(new MessageEventArgs(MessageType.Progress, MessagePriority.Medium,
                     "Users: {0} / Pool: {1} / Bench: {2} / RC: {3}--",
                     _collectedProfiles,
                     _pool.TotalUsers,

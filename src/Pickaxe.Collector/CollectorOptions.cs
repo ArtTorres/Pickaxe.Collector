@@ -1,49 +1,43 @@
-﻿using QApp;
-using QApp.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MagnetArgs;
 
 namespace Pickaxe.Collector
 {
-    class CollectorOptions : QOption
+    class CollectorOptions : MagnetOption
     {
-        [Option("--ouput-directory", Alias = "-output", IsRequired = true)]
+        [Arg("--ouput-directory", Alias = "-output"), IsRequired]
         public string OutputDirectory { get; set; }
 
-        [Option("--cache-directory", Alias = "-cache", IsRequired = true)]
+        [Arg("--cache-directory", Alias = "-cache"), IsRequired]
         public string CacheDirectory { get; set; }
 
-        [Option("--max-timeline", Alias = "-timeline", IsRequired = true)]
+        [Arg("--max-timeline", Alias = "-timeline"), IsRequired]
         public int MaxTweetsByTimeline { get; set; }
 
-        [Option("--resource-config", Alias = "-config", IsRequired = true)]
+        [Arg("--resource-config", Alias = "-config"), IsRequired]
         public string ResourceConfigFile { get; set; }
 
-        [Option("--default-config", Alias = "-default", IfPresent = true)]
+        [Arg("--default-config", Alias = "-default"), IfPresent]
         public bool DefaultConfigFile { get; set; }
 
-        [Option("--discovery-mode", Alias = "-discovery", IfPresent = true)]
+        [Arg("--discovery-mode", Alias = "-discovery"), IfPresent]
         public bool AllowDiscovery { get; set; }
 
-        [Option("--rebuild-collector", Alias = "-rebuild", IfPresent = true)]
+        [Arg("--rebuild-collector", Alias = "-rebuild"), IfPresent]
         public bool RebuildCache { get; set; }
 
-        [Option("--no-profile", Alias = "-nopf", IfPresent = true)]
+        [Arg("--no-profile", Alias = "-nopf"), IfPresent]
         public bool IgnoreUserProfile { get; set; }
 
-        [Option("--no-timeline", Alias = "-notl", IfPresent = true)]
+        [Arg("--no-timeline", Alias = "-notl"), IfPresent]
         public bool IgnoreTimeline { get; set; }
 
-        [Option("--no-friends", Alias = "-nofd", IfPresent = true)]
+        [Arg("--no-friends", Alias = "-nofd"), IfPresent]
         public bool IgnoreFriends { get; set; }
 
-        [Option("--no-followers", Alias = "-nofw", IfPresent = true)]
+        [Arg("--no-followers", Alias = "-nofw"), IfPresent]
         public bool IgnoreFollowers { get; set; }
 
-        [Option("--include-retweets", Alias = "-rts", IfPresent = true)]
+        [Arg("--include-retweets", Alias = "-rts"), IfPresent]
         public bool IncludeRetweets { get; set; }
     }
 }
